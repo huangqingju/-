@@ -1,0 +1,535 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" class="app">
+
+<head>  
+
+  <meta charset="utf-8" />
+
+  <title>厦门市文化和旅游优质资源库</title>
+
+  <meta name="description" content="app, web app, responsive, admin dashboard, admin, flat, flat ui, ui kit, off screen nav" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+  <link rel="stylesheet" href="js/jPlayer/jplayer.flat.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/animate.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/simple-line-icons.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/font.css" type="text/css" />
+
+  <link rel="stylesheet" href="css/app.css" type="text/css" />
+
+  <link rel="stylesheet" href="js/layer_mobile/need/layer.css" type="text/css" />
+  
+
+  <!--[if lt IE 9]>
+
+    <script src="js/ie/html5shiv.js"></script>
+
+    <script src="js/ie/respond.min.js"></script>
+
+    <script src="js/ie/excanvas.js"></script>
+
+  <![endif]-->
+
+</head>
+
+<body class="">
+
+  <section id="app-container" class="vbox">
+
+    <header class="bg-black lter header header-md navbar navbar-fixed-top-xs">
+      <lydb-top/>
+    </header>
+
+    <section>
+
+      <section class="hbox stretch">
+
+        <!-- .aside -->
+
+        <aside class="bg-black dk aside hidden-print" id="nav">          
+          <lydb-navbar/>
+        </aside>
+
+        <!-- /.aside -->
+
+        <section id="content">
+
+          <section class="vbox">
+
+            <section class="scrollable padder">
+
+              <div class="m-b-md">
+
+                <div class="row">
+
+                  <div class="col-sm-12">
+
+                    <h3 class="m-b-none">查询结果</h3>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <section class="panel panel-default">
+
+                <div class="row wrapper">
+
+                  <div class="col-sm-5 m-b-xs">
+
+                    <select class="input-sm form-control input-s-sm inline v-middle"  v-model="resCode">
+                      
+                      <option value="">全部</option>
+                      <option v-for="res in resList" :key="res.code" :value="res.code" v-text="res.name"></option>
+
+                    </select>
+                         
+
+                  </div>
+
+                  <div class="col-sm-4 m-b-xs">
+
+                    <div class="btn-group" data-toggle="buttons">
+
+                      <label class="btn btn-sm btn-default " @click="dayType='day'">
+
+                        <input type="radio" value="day" > 本日
+
+                      </label>
+
+                      <label class="btn btn-sm btn-default" @click="dayType='week'">
+
+                        <input type="radio" value="week" > 本周
+
+                      </label>
+
+                      <label class="btn btn-sm btn-default"  @click="dayType='month'">
+
+                        <input type="radio" value="month"> 本月
+
+                      </label>
+
+                    </div>
+
+                  </div>
+
+            
+
+                </div>
+
+                <div class="table-responsive">
+
+                  <table class="table table-striped b-t b-light">
+
+                    <thead>
+
+                      <tr>
+
+                        <th>缩略图</th>
+
+                        <th>名称</th>
+
+                        <th>类型</th>
+
+                        <th class="th-sortable" data-toggle="class">发布时间
+
+                          <span class="th-sort">
+
+                            <i class="fa fa-sort-down text"></i>
+
+                            <i class="fa fa-sort-up text-active"></i>
+
+                            <i class="fa fa-sort"></i>
+
+                          </span>
+
+                        </th>
+
+                      </tr>
+
+                    </thead>
+
+                    <tbody>
+                     
+                      <tr v-for="data in dataList" v-if="data.resCode==101" :key="data.resId">
+                        
+                        <td><a href="javascript:void(0)" data-magnify="pics" data-group="pic" :data-src="data.data.showPath" :data-caption="data.title" class="thumb-sm pull-left m-r-sm"><img :src="data.thumb==null?'images/nothumb.png':data.thumb" class="img-rounded"></a></td>
+
+                        <td ><span>{{data.title}}</span><span> <a v-if="data.resCode==101" href="#"  @click.prevent="download(data.resId,data.data.imgPath)" class="btn-pic-download"><i class="icon-cloud-download"></i></a></span></td>
+
+                        <td><span class="label bg-success m-t-xs" v-text="flagLabel(data.resCode)"></span></td>
+
+                        <td v-text="data.updatetime"></td>
+                      </tr>
+                      <tr v-else>
+                        <td><a :href="directUrl(data.resCode,data.resId)" class="thumb-sm pull-left m-r-sm"><img :src="data.thumb=='http://yun.visitxm.com/'?'images/nothumb.png':data.thumb" class="img-rounded"></a></td>
+
+                        <td v-text="data.title"></td>
+                        <td><span class="label bg-success m-t-xs" v-text="flagLabel(data.resCode)"></span></td>
+
+                        <td v-text="data.updatetime"></td>
+                      </div>
+                      </tr>                     
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+                <footer class="panel-footer">
+
+                  <div class="row">
+
+                    <div class="col-sm-4 hidden-xs">
+
+                      <select class="input-sm form-control input-s-sm inline v-middle"  v-model="resCode">
+                      
+                      <option value="">全部</option>
+                      <option v-for="res in resList" :key="res.code" :value="res.code" v-text="res.name" ></option>
+                      
+
+                    </select>
+               
+
+                    </div>
+
+                    <div class="col-sm-4 text-center">
+
+                      <small class="text-muted inline m-t-sm m-b-sm">每页 {{pageSize}} 条 --- 共 {{totalPage}} 页</small>
+
+                    </div>
+
+                    <div class="col-sm-4 text-right text-center-xs">                
+
+                      <ul class="pagination pagination">
+
+                        <li v-if="page>1"><a href="#" @click.prevent="pre"><i  class="fa fa-chevron-left"></i></a></li>                 
+      
+                        <li :class="{active:page===navbar(i)?true:false}" v-for="i in Math.min(5,totalPage)" :key="i">
+                          <a href="#" @click.prevent="page=navbar(i)">{{navbar(i)}}</a>
+                        </li>
+      
+                        <li v-if="page<totalPage"><a href="#" @click.prevent="next"><i class="fa fa-chevron-right"></i></a></li>
+      
+                      </ul>
+
+                    </div>
+
+                  </div>
+
+                </footer>
+
+              </section>
+
+            </section>
+
+          </section>
+
+          <a href="#" class="hide nav-off-screen-block" data-toggle="class:nav-off-screen,open" data-target="#nav,html"></a>
+
+        </section>
+
+      </section>
+
+    </section>    
+
+  </section>
+
+  <script src="js/jquery.min.js"></script>
+  <script type="text/javascript">
+    if(window.screen.width<=768){
+        document.write('<script type="text/javascript" src="js\/iscroll\/flexible.js"><\/script>');  
+      document.write('<script type="text/javascript" src="js\/iscroll\/iscroll.js"><\/script>');  
+      document.write('<script type="text/javascript" src="js\/iscroll\/navbarscroll.js"><\/script>');  
+      $(function(){
+        $('.scrollWrapper').navbarscroll();
+      });
+    }
+    </script>
+  <!-- Bootstrap -->
+
+  <script src="js/bootstrap.js"></script>
+
+  <!-- App -->
+
+  <script src="js/app.js"></script>  
+
+  <script src="js/slimscroll/jquery.slimscroll.min.js"></script>
+
+  <script src="js/app.plugin.js"></script>
+
+  <script type="text/javascript" src="js/jPlayer/jquery.jplayer.min.js"></script>
+
+  <script type="text/javascript" src="js/jPlayer/add-on/jplayer.playlist.min.js"></script>
+  <link rel="stylesheet" href="css/pics.css">
+  <script src="js/pics/pics.js"></script>
+  <script src="js/pics/jquery.rotate.min.js"></script>
+  <script src="js/jquery.cookie.js"></script>
+
+    <script src="./js/browser.min.js"></script>
+    <script src="./js/browser-polyfill.min.js"></script>
+    <script src="./js/vue/vue.js"></script>
+    <script src="./js/axios.min.js"></script>
+    <script src="./js/common.js"></script>   
+    <script src="./js/pages/top.js"></script>
+    <script src="./js/pages/navbar.js"></script>
+  <script src="./js/pages/login.js"></script>
+  <script type="text/javascript" src="js/layer_mobile/need/layer.css"></script>
+  <script type="text/javascript" src="js/layer_mobile/layer.js"></script>
+  <script type="text/javascript">
+     var indexVm = new Vue({
+            el:"#app-container",
+            data:{
+               lydb,
+               resCode:'',
+               dayType:'',
+               keyword:'',
+               resList:[],//资源库列表
+               dataList:[],//数据列表
+               page:1,//当前页
+               pageSize:12,//每页记录数
+               total:0,//总记录数
+               totalPage:0, //总页数
+               
+            },
+            components:{
+               // lydbTop:() => import('./js/pages/top.js'),
+                //lydbNavbar:() => import('./js/pages/navbar.js')
+                'lydb-top': lydbTop,
+                'lydb-navbar': lydbNavbar,
+             },
+             created(){
+                 ;
+               //初始化资源库列表
+               this.resList=[
+                 {code:101,name:'图片'},
+                 {code:102,name:'视频'},
+                 {code:103,name:'音频'},
+                 {code:104,name:'伴手礼'},
+                 {code:105,name:'旅游线路'},
+                 {code:106,name:'旅游攻略'},
+                 {code:107,name:'宣传品'},
+                 {code:108,name:'历史资料'},
+                 {code:109,name:'业界人员'},
+                 {code:110,name:'旅游企业'},
+                 {code:111,name:'文化资源'}
+               ]
+              
+               // 判断是否有请求参数
+                if (!location.search) {
+                    return;
+                }
+
+                const searchParam=lydb.parse(location.search.substring(1));
+                // searchParam.page=parseInt(searchParam.page)||1;
+                // searchParam.filter=searchParam.filter||{};
+                console.log('search=',searchParam)
+
+                 this.page=parseInt(searchParam.page)||1;
+                 this.resCode=searchParam.resCode==null?'':parseInt(searchParam.resCode);
+                 this.dayType=searchParam.dayType==null?'':searchParam.dayType;
+                 this.keyword=searchParam.key==null?'':searchParam.key;
+
+                 console.log(searchParam.resCode==null)
+                 console.log('page='+this.page)
+                 console.log('resCode='+this.resCode)
+                 console.log('dayType='+this.dayType)
+                 console.log('keyword='+this.keyword)
+                
+                 this.loadData();
+
+             },
+             watch:{             
+                  'page':function(){
+                   this.loadData();
+                  },
+                'resCode':function(){
+                  this.loadData();
+                },
+                'dayType':function(){
+                  this.loadData();
+                },
+                'keyword':function(){
+                  this.loadData();
+                },
+                'dataList':function(){
+                this.$nextTick(function(){
+                  if(window.screen.width<=768){
+                     
+                      $(function(){
+                        $('.scrollWrapper').navbarscroll();
+                      });
+                  }
+                  $(function () {
+                      $('[data-magnify]').Magnify({
+                          Toolbar: [
+                              'prev',
+                              'next',
+                              'rotateLeft',
+                              'rotateRight',
+                              'zoomIn',
+                              'actualSize',
+                              'zoomOut'
+                          ],
+                          keyboard:true,
+                          draggable:true,
+                          movable:true,
+                          modalSize:[800,600],
+                          beforeOpen:function (obj,data) {
+                              console.log('beforeOpen')
+                          },
+                          opened:function (obj,data) {
+                              console.log('opened')
+                          },
+                          beforeClose:function (obj,data) {
+                              console.log('beforeClose')
+                          },
+                          closed:function (obj,data) {
+                              console.log('closed')
+                          },
+                          beforeChange:function (obj,data) {
+                              console.log('beforeChange')
+                          },
+                          changed:function (obj,data) {
+                              console.log('changed')
+                          }
+                      });
+
+                  })
+                })
+              }
+             },
+             computed:{
+              flagLabel(){
+                return function(value) {
+                  return this.resList.filter(item=>item.code==value)[0].name
+                }
+              },
+              directUrl(){
+                return function(code,id){
+                  let directUrl=''
+                  switch(code){
+                     case 101:
+                        directUrl='pics.html?resCode=101&resId='+id
+                        break;
+                      case 102:
+                        directUrl='video-detail.html?resCode=102&resId='+id
+                        break;
+                      case 103:
+                        directUrl='audio.html?resCode=103'
+                        break;
+                      case 104:
+                        directUrl='gift.html?resCode=104&resId='+id
+                        break;
+                      case 105:
+                        directUrl='trip.html?resCode=105&resId='+id
+                        break;
+                      case 106:
+                        directUrl='strategy.html?resCode=106&resId='+id
+                        break;
+                      case 107:
+                        directUrl='souvenir.html?resCode=107'
+                        break;
+                      case 108:
+                        directUrl='history.html?resCode=108'
+                        break;
+                      case 109:
+                        directUrl='staff.html?resCode=109&resId='+id
+                        break;
+                      case 110:
+                        directUrl='enterprise.html?resCode=110&resId='+id
+                        break;
+                      case 111:
+                        directUrl='culture.html?resCode=111&resId='+id
+                        break;
+                   }
+                   return directUrl
+                }
+                
+              }
+             },
+             methods:{
+               
+               //加载数据
+               loadData(){
+                    
+                   ly.http.get('/search/'+this.page+'/'+this.pageSize,{
+                     params:{
+                       resCode:this.resCode,
+                       dayType:this.dayType,
+                       keyword:this.keyword
+                     }
+                 }).then(response=>{
+                       console.log(response.data)                 
+                     this.dataList=response.data.data.items;
+                     this.total=response.data.data.totalCount;
+                     this.totalPage=response.data.data.totalPage;
+                                     
+
+                 })
+                 
+               },
+               //处理分页导航条
+               navbar(i){
+                   if (this.page<=3||this.totalPage<=5){
+                       return i;
+                   } else if(this.page<=this.totalPage-2){
+                       return this.page - 3 + i;
+                   }else {
+                       return this.totalPage - 5 + i;
+                   }
+               },
+               //上一页
+               pre(){
+                 this.page>1? this.page--:1
+               },
+               //下一页
+               next(){
+                   this.page<this.totalPage?this.page++:this.totalPage
+               },
+                 //下载
+                 download(picId,picUrl){
+                     axios({
+                         method: 'get',
+                         url: baseApi+'/gallery/download/'+picId,
+                         // 必须显式指明响应类型是一个Blob对象，这样生成二进制的数据，才能通过window.URL.createObjectURL进行创建成功
+                         responseType: 'blob',
+                     }).then((res) => {
+                         if (!res) {
+                             return
+                         }
+                         // 将lob对象转换为域名结合式的url
+                         let blobUrl = window.URL.createObjectURL(res.data)
+                         let link = document.createElement('a')
+                         document.body.appendChild(link)
+                         link.style.display = 'none'
+                         link.href = blobUrl
+                         // 设置a标签的下载属性，设置文件名及格式，后缀名最好让后端在数据格式中返回
+                         link.download = picUrl.substring(picUrl.lastIndexOf('/')+1)
+                         // 自触发click事件
+                         link.click()
+                         document.body.removeChild(link)
+                         window.URL.revokeObjectURL(blobUrl);
+                     })
+                 }
+              
+             }
+           
+    });
+  </script>
+
+
+</body>
+
+</html>
