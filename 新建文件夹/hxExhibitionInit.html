@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:include="sys/include :: header"></head>
+<style>
+	#datatable + .layui-table-view .layui-table-body tbody > tr > td {
+		padding: 0;
+	}
+
+	#datatable + .layui-table-view .layui-table-body tbody > tr > td > .layui-table-cell {
+		height: 60px;
+		line-height: 60px;
+	}
+
+	.tdImg {
+		width: 50px;
+		height: 50px;
+		max-width: none;
+		cursor: pointer;
+	}
+
+	.layui-table-view {
+		margin: 0;
+	}
+
+</style>
+<body>
+	<div class="page-content-wrap">
+		<form id="searchForm" class="layui-form">
+			<div class="layui-form-item">
+				<div class="layui-inline tool-btn">
+					<button class="layui-btn layui-btn-sm layui-btn-normal refreshBtn"><i class="layui-icon">&#xe666;</i>刷新</button>
+					<button class="layui-btn layui-btn-sm layui-btn-normal addBtn" data-title="添加" th:data-url="'sys/hxExhibition/addOrEditInit?sysMenuId='+${sysMenuId}" w="1000px" h="620px"><i class="layui-icon">&#xe654;</i>添加</button>
+				</div>
+				<div class="layui-inline">
+					<input type="text"  name="eProname" placeholder="标题" autocomplete="off" class="layui-input">
+				</div>
+				<div class="layui-inline">
+					<select  name="display">
+						<option value="">状态</option>
+						<option value="1">显示</option>
+						<option value="0">隐藏</option>
+					</select>
+				</div>
+
+				<button class="layui-btn layui-btn-normal searchBtn" >搜索</button>
+				<!--<a href="javascript:void (0)"  class="layui-btn layui-btn-normal " onclick="searchList()">搜索</a>-->
+			</div>
+		</form>
+
+		<div class="layui-form" id="table-list">
+			<div id="layPhotosTbImg">
+    			<table class="layui-table"  id="datatable" lay-filter="datatable_filter"></table>
+			</div>
+		</div>
+	</div>
+
+    <script th:inline="javascript">
+        var sysMenuId = [[${sysMenuId}]];
+        var tableIns;
+    	 layui.use(['layer','dialog', 'table'], function() {
+             var $ = layui.jquery;
+             var table = layui.table;
+             var layer = layui.layer;
+             var dialog=layui.dialog;
+             // 渲染表格
+
+
+             var renderTable = function () {
+                 layer.load(2);
+                 //表格实例化
+                  tableIns =  table.render({
+                     elem: '#datatable'
+                     ,id:'datagrid'
+                     ,skin: 'row' //列边框风格
+                     ,even: true //开启隔行背景
+					 ,cellMinWidth: 100
+                     ,url: ctx+'sys/hxExhibition/list' //数据接口
+                     ,page: {theme:'#1E9FFF'} //开启分页
+
+                     ,limit:10
+                     ,limits:[10,20,30]
+                     ,cols: [[ //表头
+                         {checkbox: true, fixed: true}
+                         ,{field: 'ids', title: 'ID', align:'center',width:100}
+
+                         ,{field: 'eProname', title: '标题', align:'center',width:180}
+                         ,{field: 'eAreacity', title: '城市', align:'center',width:180}
+                         ,{field: 'thumb', title: '缩略图', align:'center',width:90,unresize: true
+                             ,templet: function (d) {
+                                 if(!d.thumb){
+                                     return '<img src="" class="tdImg" />';
+                                 }else if(d.thumb.indexOf("http://") != -1){
+                                     return '<img src="' +d.thumb + '" class="tdImg" />';
+                                 }else{
+                                     return '<img src="' + ctx+d.thumb + '" class="tdImg" />';
+                                 }
+
+                             }}
+
+
+                         ,{field: 'display', title: '状态', align:'center',event:'updateStatus',templet: function(d) {
+                                 var html = ['<input type="checkbox" name="display" lay-skin="switch" lay-text="显示|隐藏"'];
+                                 html.push(d.display == 1 ? 'checked' : '');
+                                 html.push('/>');
+                                 return html.join('');
+                         }}
+                         ,{field: 'top', title: '置顶', align:'center',event:'updateTop',templet: function(d) {
+                                 var html = ['<input type="checkbox" name="top" lay-skin="switch" lay-text="是|否"'];
+                                 html.push(d.top == 1 ? 'checked' : '');
+                                 html.push('/>');
+                                 return html.join('');
+                             }}
+                          ,{field: 'examine', title: '审核情况', align:'center',templet: function(d) {
+
+                                  var str ='';
+                                  if(d.examine){
+                                      str ='已审核';
+                                  }else{
+                                      str ='未审核';
+                                  }
+
+                                  return str;
+                              }}
+                         ,{field: 'sort', title: '排序', align:'center'}
+                         ,{title: '操作',  minWidth:200, align:'center', toolbar: '#toolBar'} //这里的toolbar值是模板元素的选择器
+                     ]],
+                     done: function () {
+                         layer.closeAll('loading');
+                         layer.photos({
+                             photos: '#layPhotosTbImg',
+                             shade: .1,
+                             closeBtn: true
+                         });
+                     }
+                 });
+             };
+             renderTable();
+             operInit($,dialog,table);
+
+             table.on('tool(datatable_filter)', function(obj){ //注：tool是工具条事件名，datatable_filter是table原始容器的属性 lay-filter="对应的值"
+                 var data = obj.data; //获得当前行数据
+                 var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                 var tr = obj.tr; //获得当前行 tr 的DOM对象
+
+                 if(layEvent == 'edit'){ //编辑
+                     active.edit('编辑',ctx+"sys/hxExhibition/addOrEditInit?ids="+data.ids+"&sysMenuId="+sysMenuId,'1000px','620px');
+                 }else if(layEvent=='delete'){//删除
+                     active.delete(data,ctx+'sys/hxExhibition/delete?ids='+data.ids);
+                 }else if (layEvent=='updateStatus'){
+                     var display = obj.tr.find("input[name='display']").prop('checked') ? 1 : 0;
+                     $.ajax({
+                         url:ctx+'sys/hxExhibition/updateStatusOrTop',
+                         type:'post',
+                         data:{ids:obj.data.ids,
+                             display:display
+                         },
+                         dataType:'json',
+                         success:function (data) {
+                             dialog.msg(data);
+                             if (data.resultInfo.type==1) {
+                                 active.reload();
+                             }
+                         }
+                     });
+				 }else if(layEvent=='updateTop'){
+                     var top = obj.tr.find("input[name='top']").prop('checked') ? 1 : 0;
+                     $.ajax({
+                         url:ctx+'sys/hxExhibition/updateStatusOrTop',
+                         type:'post',
+                         data:{ids:obj.data.ids,
+                             top:top
+                         },
+                         dataType:'json',
+                         success:function (data) {
+                             dialog.msg(data);
+                             if (data.resultInfo.type==1) {
+                                 active.reload();
+                             }
+                         }
+                     });
+				 }else if(layEvent =='look'){
+                     window.open(ctx+'exhibition-detail.html?ids='+obj.data.ids);
+                 }
+
+
+             });
+
+         });
+        function  searchList() {
+            tableIns.reload({
+                where:{
+                    eProname:$("#eProname").val(),
+                    display:$("#display").val(),
+                    categoryName:$("#categoryName").val()
+
+                },
+                page:{
+                    curr:1
+                }
+            })
+        }
+    </script>
+	<!-- 操作列 -->
+	<script type="text/html" id="toolBar">
+		<a class ="layui-btn layui-btn-xs" lay-event="look">预览</a>
+		<a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit">修改</a>
+		<a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="delete">删除</a>
+	</script>
+</body>
+
+</html>
